@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import logo from './logo.svg';
 import './App.css';
 import './bootstrap.min.css';
@@ -13,26 +14,43 @@ function Hero() {
     </div>
   )
 }
-function Book({title}) {
+function Book({title, onClick}) {
   return(
-    <div className="answer">
+    <div className="answer" onClick={() => {onClick(title);}}>
       <h4>{title}</h4>
     </div>
   );
 }
-function Turn({author, books}) {
+function Turn({author, books, highlight, onAnswersSelected}) {
+  function highlightToBgColor(highlight) {
+    const mapping = {
+      'none': '',
+      'correct': 'green',
+      'wrong': 'red'
+    }
+    return mapping[highlight];
+  }
   return(
-    <div className="row turn" style={{backgroundColor: "white"}}>
+    <div className="row turn" style={{backgroundColor: highlightToBgColor(highlight)}}>
       <div className="col-4 offset-1">
         <img src={author.imageUrl} className="authorimage" alt="Author" />
       </div>
       <div className="col-6">
-        {books.map((title) => <Book title={title} key={title} />)}
+        {books.map((title) => <Book title={title} key={title} onClick={onAnswersSelected} />)}
       </div>
     </div>
   );
 }
-
+Turn.prototypes = {
+  author: PropTypes.shape({
+    name: PropTypes.string.isRequired,
+    imageUrl: PropTypes.string.isRequired,
+    imageSource: PropTypes.string.isRequired,
+    books: PropTypes.arrayOf(PropTypes.string).isRequired
+  }),
+  books: PropTypes.arrayOf(PropTypes.string).isRequired,
+  onAnswersSelected: PropTypes.func.isRequired
+}
 function Continue() {
   return (
     <div></div>
@@ -50,11 +68,11 @@ function Footer() {
     </div>
   )
 }
-function AuthorQuiz({turnData}) {
+function AuthorQuiz({turnData, highlight, onAnswersSelected}) {
     return (
       <div className="container-fluid">
         <Hero />
-        <Turn {...turnData} />
+        <Turn {...turnData} highlight={highlight} onAnswersSelected={onAnswersSelected}/>
         <Continue />
         <Footer />
       </div>
